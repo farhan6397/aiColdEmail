@@ -3,10 +3,9 @@ const { sendEmail } = require("../utils/sendEmail");
 
 exports.register = async (req, res) => {
     try {
-        const { username, name, email, password } = req.body;
-        const fullName = name || username;
+        const { username, email, password } = req.body;
 
-        if (!fullName || !email || !password) {
+        if (!username || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -28,7 +27,7 @@ exports.register = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-        const user = await User.create({ name: fullName, email, password, otp, otpExpiry });
+        const user = await User.create({ email, name: username, password, otp, otpExpiry });
 
         // OTP sending logic
         try {
@@ -43,8 +42,14 @@ exports.register = async (req, res) => {
 
         return res.status(201).json({ message: "User created successfully. OTP sent to email.", userId: user._id });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Register Error:", error);
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message });
+        }
+        if (error.code === 11000) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
 
