@@ -1,8 +1,14 @@
 const express = require("express");
 const router = express.Router();
+const aiController = require("../controllers/aiController");
+const protect = require("../middleware/authMiddleware");
 
-router.get("/health", (req, res) => {
-    res.json({ message: "AI routes active" });
-});
+/**
+ * @name generate email
+ * @description generate an email
+ * @route POST /generate-email
+ */
+
+router.post("/generate-email", protect, aiController.generateEmail);
 
 module.exports = router;
