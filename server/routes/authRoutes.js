@@ -29,11 +29,5 @@ router.post("/login", authController.login);
 
 router.post("/verify-otp", authController.verifyOtp);
 
-/**
- * @name resend otp
- * @description resend opt code
- * @route POST /resend-otp
- */
-router.post("/resend-otp", authController.resendOtp);
 
 module.exports = router;

@@ -15,16 +15,6 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Custom middleware to catch invalid JSON body parsing errors cleanly
-app.use((err, req, res, next) => {
-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        return res.status(400).json({ 
-            message: "Invalid JSON format in request body. Please ensure your JSON payload is formatted correctly without extra quotes around it." 
-        });
-    }
-    next(err);
-});
-
 // api routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);

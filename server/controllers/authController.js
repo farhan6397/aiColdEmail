@@ -1,5 +1,13 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const { sendEmail } = require("../utils/sendEmail");
+
+const generateToken = function (id) {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is missing from environment variables");
+    }
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+};
 
 exports.register = async (req, res) => {
     try {
@@ -43,7 +51,7 @@ exports.register = async (req, res) => {
                 return res.status(200).json({ message: "Account pending verification. A new OTP has been sent to your email.", userId: user._id });
             } catch (emailError) {
                 console.error("Email sending error:", emailError);
-                return res.status(500).json({ message: "Failed to send OTP email. Please try resend OTP.", error: emailError.message });
+                return res.status(500).json({ message: "Failed to send OTP email. Please try resending OTP.", error: emailError.message });
             }
         }
 
@@ -52,7 +60,6 @@ exports.register = async (req, res) => {
 
         user = await User.create({ email, name: username, password, otp, otpExpiry });
 
-        // OTP sending logic
         try {
             await sendEmail({
                 to: email,
@@ -99,8 +106,11 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: "Please verify your email before logging in" });
         }
 
+        const token = generateToken(user._id);
+
         return res.status(200).json({
             message: "Login successful",
+            token,
             user: {
                 id: user._id,
                 name: user.name,
@@ -108,8 +118,8 @@ exports.login = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Login error:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
 
@@ -126,19 +136,38 @@ exports.verifyOtp = async (req, res) => {
         }
 
         if (user.isVerified) {
-            return res.status(400).json({ message: "User is already verified" });
+            // const token = generateToken(user._id);
+            return res.status(200).json({
+                message: "User is already verified",
+                // token,
+                /* user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                 }*/
+            });
         }
 
         if (!user.otp || String(user.otp).trim() !== String(otp).trim() || new Date(user.otpExpiry).getTime() < Date.now()) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
+        const token = generateToken(user._id);
+
         user.isVerified = true;
         user.otp = undefined;
         user.otpExpiry = undefined;
         await user.save();
 
-        return res.status(200).json({ message: "Email verified successfully" });
+        return res.status(200).json({
+            message: "Email verified successfully",
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            }
+        });
     } catch (error) {
         console.error("Verify OTP Error:", error);
         return res.status(500).json({ message: "Internal server error", error: error.message });
