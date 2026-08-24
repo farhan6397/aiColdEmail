@@ -58,3 +58,20 @@ exports.generateEmail = async (req, res) => {
         });
     }
 };
+
+
+exports.getHistory = async (req, res) => {
+    try {
+        const emailHistory = await EmailHistory.find({ user: req.user._id }).sort({ createdAt: -1 });
+        return res.status(200).json({
+            message: "Email history fetched successfully",
+            data: emailHistory,
+        });
+    } catch (error) {
+        console.error("Get history error:", error.message);
+        return res.status(500).json({
+            message: "Error while fetching history",
+            error: error.message
+        });
+    }
+};
