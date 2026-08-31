@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, Home, BookOpen, ShieldAlert, BarChart2, HelpCircle } from 'lucide-react';
-import { useAuth } from '../context/authContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const Navbar = () => {
     const { user } = useAuth();

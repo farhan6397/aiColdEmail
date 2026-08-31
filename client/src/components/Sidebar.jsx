@@ -15,7 +15,7 @@ import {
     X,
     Home
 } from 'lucide-react';
-import { useAuth } from '../context/authContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const Sidebar = ({ isOpen, setIsOpen, onNewGenerator }) => {
     const { user, logout } = useAuth();

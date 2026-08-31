@@ -15,6 +15,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// health check & keep-alive route
+app.get("/", (req, res) => {
+    res.status(200).json({ status: "active", message: "ColdMail AI Backend is Running 24/7" });
+});
+
 // api routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
