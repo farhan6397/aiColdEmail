@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext.jsx';
 import Navbar from '../components/Navbar.jsx';
 import Footer from '../components/Footer.jsx';
+import WhatsAppButton from '../components/WhatsAppButton.jsx';
 import {
     Sparkles,
     Terminal,
@@ -108,20 +109,20 @@ Alex Mercer`,
                 </p>
 
                 {/* Hero CTA Buttons */}
-                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="mt-8 flex flex-row items-center justify-center gap-3 max-w-md mx-auto px-2">
                     <Link
                         to={user ? "/dashboard" : "/register"}
-                        className="w-full sm:w-auto text-base font-semibold text-slate-950 bg-white hover:bg-slate-100 px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg shadow-white/10 flex items-center justify-center gap-2"
+                        className="flex-1 sm:flex-none text-xs sm:text-sm font-bold text-slate-950 bg-[#2DD4BF] hover:bg-[#2DD4BF]/90 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-all duration-200 shadow-lg shadow-[#2DD4BF]/20 flex items-center justify-center gap-1.5 whitespace-nowrap"
                     >
-                        {user ? 'Open Studio Dashboard' : 'Start Generating Free'}
-                        <ArrowRight className="w-4 h-4" />
+                        <span>{user ? 'Open Studio' : 'Start Free'}</span>
+                        <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                     </Link>
                     <a
                         href="#outreach-packages"
-                        className="w-full sm:w-auto text-base font-medium text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 px-8 py-3.5 rounded-full transition-all duration-200 flex items-center justify-center gap-2"
+                        className="flex-1 sm:flex-none text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 whitespace-nowrap"
                     >
-                        <Sparkles className="w-4 h-4 text-slate-400" />
-                        View Live Sample
+                        <Sparkles className="w-3.5 h-3.5 text-[#2DD4BF] shrink-0" />
+                        <span>View Live Sample</span>
                     </a>
                 </div>
 
@@ -204,7 +205,7 @@ Alex Mercer`,
                 {/* 3 Feature Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
                     {/* Card 1 */}
-                    <div className="glass-panel p-8 rounded-3xl border border-slate-800/80 hover:border-[#2DD4BF]/40 transition-all duration-300 group flex flex-col justify-between">
+                    <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800/90 hover:border-[#2DD4BF]/50 shadow-xl transition-all duration-300 group flex flex-col justify-between">
                         <div>
                             <div className="w-12 h-12 rounded-2xl bg-[#2DD4BF]/10 border border-[#2DD4BF]/20 flex items-center justify-center text-[#2DD4BF] mb-6 group-hover:scale-110 transition-transform">
                                 <Zap className="w-6 h-6" />
@@ -217,7 +218,7 @@ Alex Mercer`,
                     </div>
 
                     {/* Card 2 */}
-                    <div className="glass-panel p-8 rounded-3xl border border-slate-800/80 hover:border-[#2DD4BF]/40 transition-all duration-300 group flex flex-col justify-between">
+                    <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800/90 hover:border-[#2DD4BF]/50 shadow-xl transition-all duration-300 group flex flex-col justify-between">
                         <div>
                             <div className="w-12 h-12 rounded-2xl bg-[#2DD4BF]/10 border border-[#2DD4BF]/20 flex items-center justify-center text-[#2DD4BF] mb-6 group-hover:scale-110 transition-transform">
                                 <FileText className="w-6 h-6" />
@@ -230,7 +231,7 @@ Alex Mercer`,
                     </div>
 
                     {/* Card 3 */}
-                    <div className="glass-panel p-8 rounded-3xl border border-slate-800/80 hover:border-[#2DD4BF]/40 transition-all duration-300 group flex flex-col justify-between">
+                    <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800/90 hover:border-[#2DD4BF]/50 shadow-xl transition-all duration-300 group flex flex-col justify-between">
                         <div>
                             <div className="w-12 h-12 rounded-2xl bg-[#2DD4BF]/10 border border-[#2DD4BF]/20 flex items-center justify-center text-[#2DD4BF] mb-6 group-hover:scale-110 transition-transform">
                                 <BarChart3 className="w-6 h-6" />
@@ -379,7 +380,8 @@ Alex Mercer`,
                 <div className="h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
             </div>
 
-            {/* 8. FOOTER */}
+            {/* 8. FOOTER & WHATSAPP BUTTON */}
+            <WhatsAppButton />
             <Footer />
 
         </div>

@@ -70,27 +70,27 @@ const AnalyticsPage = () => {
             <Sidebar />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-                <header className="sticky top-0 z-30 bg-[#080B0C]/90 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-[#2DD4BF]" />
-                            <span>Outreach Analytics & Health</span>
+                <header className="sticky top-0 z-30 bg-[#080B0C]/90 backdrop-blur-md border-b border-slate-800/80 px-3 sm:px-6 h-16 flex items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <h1 className="text-sm sm:text-lg font-bold text-white flex items-center gap-2 whitespace-nowrap truncate">
+                            <BarChart3 className="w-5 h-5 text-[#2DD4BF] shrink-0" />
+                            <span>Outreach Analytics</span>
                         </h1>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
                         <Link
                             to="/"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-md group"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-md shrink-0"
                         >
-                            <Home className="w-3.5 h-3.5 text-[#2DD4BF] group-hover:scale-110 transition-transform" />
-                            <span>Back to Home</span>
+                            <Home className="w-3.5 h-3.5 text-[#2DD4BF] shrink-0" />
+                            <span className="whitespace-nowrap">Home</span>
                         </Link>
 
                         <button
                             onClick={fetchHistory}
                             title="Refresh analytics"
-                            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+                            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors shrink-0"
                         >
                             <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                         </button>

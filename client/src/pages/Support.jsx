@@ -1,25 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Navbar from '../components/Navbar.jsx';
 import Footer from '../components/Footer.jsx';
-import { HelpCircle, Mail, MessageSquare, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import WhatsAppButton from '../components/WhatsAppButton.jsx';
+import { HelpCircle, MessageCircle, PhoneCall, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const Support = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [msg, setMsg] = useState('');
-    const [sent, setSent] = useState(false);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!name || !email || !msg) return;
-        setSent(true);
-        setTimeout(() => {
-            setSent(false);
-            setName('');
-            setEmail('');
-            setMsg('');
-        }, 4000);
-    };
+    const phoneNumber = "916397801840";
+    const formattedPhone = "+91 63978 01840";
+    const defaultMessage = encodeURIComponent("Hi ColdMail AI Support! I need assistance with AI Cold Email Generator.");
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`;
 
     const faqs = [
         {
@@ -46,14 +35,14 @@ const Support = () => {
 
             <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="text-center mb-16">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/30 mb-4">
-                        <HelpCircle className="w-3.5 h-3.5" /> Support & Knowledge Center
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 mb-4">
+                        <HelpCircle className="w-3.5 h-3.5" /> Direct Support & Help Center
                     </span>
                     <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-                        How can we <span className="text-blue-400">help you?</span>
+                        Instant WhatsApp <span className="text-emerald-400">Support</span>
                     </h1>
                     <p className="mt-4 text-slate-400 text-base max-w-xl mx-auto">
-                        Find answers to common questions or reach out directly to our outreach customer support team.
+                        Skip email queues! Reach out directly on WhatsApp for instant assistance from our engineering and support team.
                     </p>
                 </div>
 
@@ -72,75 +61,53 @@ const Support = () => {
                         </div>
                     </div>
 
-                    {/* Contact Form Column (5 cols) */}
+                    {/* Direct WhatsApp Contact Card Column (5 cols) */}
                     <div className="lg:col-span-5">
-                        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-2xl">
-                            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                                <MessageSquare className="w-5 h-5 text-[#2DD4BF]" />
-                                <span>Contact Support Team</span>
-                            </h3>
-                            <p className="text-slate-400 text-xs mb-6">
-                                Fill out the form below and our team will get back to you within 24 hours.
-                            </p>
+                        <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-2xl space-y-6 text-center">
+                            <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto shadow-lg shadow-emerald-500/10">
+                                <MessageCircle className="w-8 h-8 fill-emerald-500 text-slate-950" />
+                            </div>
 
-                            {sent ? (
-                                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-center space-y-2">
-                                    <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                                    <h4 className="font-bold text-sm">Message Sent Successfully!</h4>
-                                    <p className="text-xs text-slate-400">Thank you for reaching out. We will get back to you shortly.</p>
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-1">WhatsApp Instant Support</h3>
+                                <p className="text-slate-400 text-xs">
+                                    Fastest way to get help with your account or technical queries.
+                                </p>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-[#070A0B] border border-slate-800 space-y-2">
+                                <div className="text-xs font-mono text-slate-400 uppercase tracking-wider">Official Support Number</div>
+                                <div className="text-xl font-extrabold text-emerald-400 font-mono tracking-tight flex items-center justify-center gap-2">
+                                    <PhoneCall className="w-4 h-4 text-emerald-400" />
+                                    <span>{formattedPhone}</span>
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1.5">Your Name</label>
-                                        <input
-                                            type="text"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            placeholder="e.g. Alex Mercer"
-                                            required
-                                            className="w-full p-3 rounded-xl bg-[#070A0B] border border-slate-800 text-slate-200 text-xs focus:border-[#2DD4BF] focus:outline-none"
-                                        />
-                                    </div>
+                                <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 font-mono pt-1">
+                                    <Clock className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                                    <span>Response Time: &lt; 15 mins</span>
+                                </div>
+                            </div>
 
-                                    <div>
-                                        <label className="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1.5">Work Email</label>
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="alex@company.com"
-                                            required
-                                            className="w-full p-3 rounded-xl bg-[#070A0B] border border-slate-800 text-slate-200 text-xs focus:border-[#2DD4BF] focus:outline-none"
-                                        />
-                                    </div>
+                            <a
+                                href={whatsappUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2.5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <MessageCircle className="w-5 h-5 fill-slate-950 text-emerald-500" />
+                                <span>Start WhatsApp Chat Now</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </a>
 
-                                    <div>
-                                        <label className="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1.5">Your Message</label>
-                                        <textarea
-                                            value={msg}
-                                            onChange={(e) => setMsg(e.target.value)}
-                                            placeholder="Describe your issue or feature request..."
-                                            rows={4}
-                                            required
-                                            className="w-full p-3 rounded-xl bg-[#070A0B] border border-slate-800 text-slate-200 text-xs focus:border-[#2DD4BF] focus:outline-none resize-none"
-                                        />
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all"
-                                    >
-                                        <Send className="w-3.5 h-3.5" />
-                                        <span>Send Message</span>
-                                    </button>
-                                </form>
-                            )}
+                            <div className="pt-2 text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Direct access to lead technical support</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </main>
 
+            <WhatsAppButton />
             <Footer />
         </div>
     );

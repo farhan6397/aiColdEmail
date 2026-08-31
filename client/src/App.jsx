@@ -15,6 +15,7 @@ import Privacy from './pages/Privacy.jsx'
 import Terms from './pages/Terms.jsx'
 import SecurityInfo from './pages/SecurityInfo.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
+import MobileBottomNav from './components/MobileBottomNav.jsx'
 
 function App() {
   const { user, loading } = useAuth();
@@ -31,7 +32,7 @@ function App() {
   }
 
   return (
-    <>
+    <div className="pb-16 lg:pb-0">
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -49,7 +50,8 @@ function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/security-info" element={<SecurityInfo />} />
       </Routes>
-    </>
+      <MobileBottomNav />
+    </div>
   )
 }
 

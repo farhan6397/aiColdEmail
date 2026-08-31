@@ -212,42 +212,42 @@ const Dashboard = () => {
             <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
 
                 {/* TOP HEADER BAR */}
-                <header className="sticky top-0 z-30 bg-[#080B0C]/90 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                <header className="sticky top-0 z-30 bg-[#080B0C]/90 backdrop-blur-md border-b border-slate-800/80 px-3 sm:px-6 h-16 flex items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
                         <button
                             onClick={() => setMobileSidebarOpen(true)}
-                            className="lg:hidden text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/60 transition-colors"
+                            className="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800/60 transition-colors shrink-0"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
-                        <div>
-                            <h1 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                                <span>Outreach Studio</span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 font-medium">
-                                    Groq AI 2.0
-                                </span>
+                        <div className="flex items-center gap-2 min-w-0">
+                            <h1 className="text-sm sm:text-lg font-bold text-white whitespace-nowrap truncate">
+                                Outreach Studio
                             </h1>
+                            <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 font-medium whitespace-nowrap shrink-0">
+                                Groq AI 2.0
+                            </span>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
                         <Link
                             to="/"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-md hover:border-[#2DD4BF]/40 group"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-md shrink-0"
                         >
-                            <Home className="w-3.5 h-3.5 text-[#2DD4BF] group-hover:scale-110 transition-transform" />
-                            <span>Back to Home</span>
+                            <Home className="w-3.5 h-3.5 text-[#2DD4BF] shrink-0" />
+                            <span className="whitespace-nowrap">Home</span>
                         </Link>
 
                         <button
                             onClick={fetchHistory}
                             title="Refresh history"
-                            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+                            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors shrink-0"
                         >
                             <RotateCcw className={`w-4 h-4 ${historyLoading ? 'animate-spin' : ''}`} />
                         </button>
 
-                        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400 shrink-0">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             <span>Deliverability Radar: <strong>Optimal ({inboxPlacementRate}%)</strong></span>
                         </div>
