@@ -31,7 +31,7 @@ const Login = () => {
             if (login) {
                 await login(formData);
             }
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/authContext.jsx';
 import {
     Sparkles,
     Terminal,
@@ -17,10 +18,12 @@ import {
     Lock,
     BarChart3,
     Users,
-    FileText
+    FileText,
+    LayoutDashboard
 } from 'lucide-react';
 
 const Home = () => {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('email');
     const [copiedCode, setCopiedCode] = useState(false);
     const [copiedCmd, setCopiedCmd] = useState(false);
@@ -98,16 +101,29 @@ Alex Mercer`,
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-4">
-                        <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5">
-                            Sign in
-                        </Link>
-                        <Link
-                            to="/register"
-                            className="text-sm font-semibold text-slate-900 bg-white hover:bg-slate-100 px-4 py-2 rounded-full transition-all duration-200 shadow-md shadow-white/5 flex items-center gap-1.5 hover:gap-2"
-                        >
-                            Get started
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        {user ? (
+                            <Link
+                                to="/dashboard"
+                                className="text-sm font-semibold text-slate-900 bg-white hover:bg-slate-100 px-5 py-2 rounded-full transition-all duration-200 shadow-md shadow-white/5 flex items-center gap-2 hover:gap-2.5"
+                            >
+                                <LayoutDashboard className="w-4 h-4 text-[#2DD4BF]" />
+                                <span>Go to Dashboard</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                            </Link>
+                        ) : (
+                            <>
+                                <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5">
+                                    Sign in
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="text-sm font-semibold text-slate-900 bg-white hover:bg-slate-100 px-4 py-2 rounded-full transition-all duration-200 shadow-md shadow-white/5 flex items-center gap-1.5 hover:gap-2"
+                                >
+                                    Get started
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </header>
@@ -140,10 +156,10 @@ Alex Mercer`,
                 {/* Hero CTA Buttons */}
                 <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <Link
-                        to="/register"
+                        to={user ? "/dashboard" : "/register"}
                         className="w-full sm:w-auto text-base font-semibold text-slate-950 bg-white hover:bg-slate-100 px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg shadow-white/10 flex items-center justify-center gap-2"
                     >
-                        Start Generating Free
+                        {user ? 'Open Studio Dashboard' : 'Start Generating Free'}
                         <ArrowRight className="w-4 h-4" />
                     </Link>
                     <a

@@ -67,7 +67,7 @@ const Register = () => {
 
         try {
             await verifyOtp({ email: formData.email, otp });
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'OTP verification failed. Please try again.');
         } finally {

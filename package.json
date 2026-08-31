@@ -1,0 +1,30 @@
+{
+  "name": "ai-cold-email-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "install-client": "npm install --prefix client",
+    "install-server": "npm install --prefix server",
+    "install-all": "npm install && npm run install-client && npm run install-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farhan6397/aiColdEmail.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/farhan6397/aiColdEmail/issues"
+  },
+  "homepage": "https://github.com/farhan6397/aiColdEmail#readme",
+  "dependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
