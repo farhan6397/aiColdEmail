@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext.jsx';
+import Navbar from '../components/Navbar.jsx';
+import Footer from '../components/Footer.jsx';
 import {
     Sparkles,
     Terminal,
@@ -78,55 +80,7 @@ Alex Mercer`,
         <div className="min-h-screen bg-[#080B0C] text-slate-200 selection:bg-[#2DD4BF]/20 selection:text-[#2DD4BF] font-sans overflow-x-hidden">
 
             {/* 1. TOP NAVBAR */}
-            <header className="sticky top-0 z-50 bg-[#080B0C]/80 backdrop-blur-md border-b border-slate-800/60">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2.5 group">
-                        <div className="w-8 h-8 rounded-lg bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 flex items-center justify-center text-[#2DD4BF] group-hover:scale-105 transition-transform">
-                            <Mail className="w-4 h-4" />
-                        </div>
-                        <span className="font-bold text-lg tracking-tight text-white flex items-center gap-1">
-                            coldmail<span className="text-[#2DD4BF]">.ai</span>
-                        </span>
-                    </Link>
-
-                    {/* Navigation Links */}
-                    <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-                        <a href="#features" className="hover:text-white transition-colors">Features</a>
-                        <a href="#security" className="hover:text-white transition-colors">Deliverability</a>
-                        <a href="#outreach-packages" className="hover:text-white transition-colors">Outreach Packages</a>
-                        <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-                    </nav>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-4">
-                        {user ? (
-                            <Link
-                                to="/dashboard"
-                                className="text-sm font-semibold text-slate-900 bg-white hover:bg-slate-100 px-5 py-2 rounded-full transition-all duration-200 shadow-md shadow-white/5 flex items-center gap-2 hover:gap-2.5"
-                            >
-                                <LayoutDashboard className="w-4 h-4 text-[#2DD4BF]" />
-                                <span>Go to Dashboard</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
-                        ) : (
-                            <>
-                                <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5">
-                                    Sign in
-                                </Link>
-                                <Link
-                                    to="/register"
-                                    className="text-sm font-semibold text-slate-900 bg-white hover:bg-slate-100 px-4 py-2 rounded-full transition-all duration-200 shadow-md shadow-white/5 flex items-center gap-1.5 hover:gap-2"
-                                >
-                                    Get started
-                                    <ArrowRight className="w-3.5 h-3.5" />
-                                </Link>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </header>
+            <Navbar />
 
             {/* 2. HERO SECTION */}
             <section className="relative pt-20 pb-24 md:pt-28 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
@@ -425,71 +379,8 @@ Alex Mercer`,
                 <div className="h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
             </div>
 
-            {/* 8. FOOTER WITH GIANT WATERMARK */}
-            <footer className="border-t border-slate-900 bg-[#060809] pt-16 pb-12 relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-16 border-b border-slate-800/60">
-                        {/* Column 1 */}
-                        <div>
-                            <h4 className="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">Product</h4>
-                            <ul className="space-y-2.5 text-sm text-slate-400">
-                                <li><a href="#features" className="hover:text-white transition-colors">AI Email Generator</a></li>
-                                <li><a href="#security" className="hover:text-white transition-colors">Spam Audit Scanner</a></li>
-                                <li><a href="#outreach-packages" className="hover:text-white transition-colors">Multichannel Packages</a></li>
-                                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Plans</a></li>
-                            </ul>
-                        </div>
-
-                        {/* Column 2 */}
-                        <div>
-                            <h4 className="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">Outreach Tools</h4>
-                            <ul className="space-y-2.5 text-sm text-slate-400">
-                                <li><a href="#outreach-packages" className="hover:text-white transition-colors">Cold Email Generator</a></li>
-                                <li><a href="#outreach-packages" className="hover:text-white transition-colors">Follow-Up Writer</a></li>
-                                <li><a href="#outreach-packages" className="hover:text-white transition-colors">LinkedIn DM Creator</a></li>
-                                <li><a href="#outreach-packages" className="hover:text-white transition-colors">Subject Line Generator</a></li>
-                            </ul>
-                        </div>
-
-                        {/* Column 3 */}
-                        <div>
-                            <h4 className="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">Resources</h4>
-                            <ul className="space-y-2.5 text-sm text-slate-400">
-                                <li><a href="#" className="hover:text-white transition-colors">Cold Outreach Guide</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Spam Filter Dictionary</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Email Deliverability Benchmarks</a></li>
-                            </ul>
-                        </div>
-
-                        {/* Column 4 */}
-                        <div>
-                            <h4 className="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">Account</h4>
-                            <ul className="space-y-2.5 text-sm text-slate-400">
-                                <li><Link to="/login" className="hover:text-white transition-colors">Sign In</Link></li>
-                                <li><Link to="/register" className="hover:text-white transition-colors">Register Account</Link></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    {/* Watermark Logo */}
-                    <div className="pt-12 text-center select-none pointer-events-none opacity-10">
-                        <span className="font-extrabold text-7xl sm:text-9xl tracking-tighter text-white font-sans">
-                            coldmail.ai
-                        </span>
-                    </div>
-
-                    {/* Bottom Copyright */}
-                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                        <p>© {new Date().getFullYear()} ColdMail.ai. All rights reserved.</p>
-                        <div className="flex items-center gap-6">
-                            <a href="#" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
-                            <a href="#" className="hover:text-slate-400 transition-colors">Terms of Service</a>
-                            <a href="#" className="hover:text-slate-400 transition-colors">Security</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            {/* 8. FOOTER */}
+            <Footer />
 
         </div>
     );

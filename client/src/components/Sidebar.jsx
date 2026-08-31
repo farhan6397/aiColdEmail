@@ -1,39 +1,39 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-    Sparkles, 
-    Mail, 
-    History, 
-    Zap, 
-    LogOut, 
-    User, 
-    Plus, 
-    BarChart3, 
-    FileText, 
-    Bookmark, 
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+    Sparkles,
+    Mail,
+    History,
+    Zap,
+    LogOut,
+    User,
+    Plus,
+    BarChart3,
+    FileText,
+    Bookmark,
     Sliders,
     X,
     Home
 } from 'lucide-react';
 import { useAuth } from '../context/authContext.jsx';
 
-const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, onNewGenerator }) => {
+const Sidebar = ({ isOpen, setIsOpen, onNewGenerator }) => {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const navItems = [
-        { id: 'generator', label: 'AI Generator', icon: Zap, badge: 'New' },
-        { id: 'history', label: 'Email History', icon: History },
-        { id: 'templates', label: 'Prompt Presets', icon: Bookmark },
-        { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+        { id: 'generator', path: '/dashboard', label: 'AI Generator', icon: Zap, badge: 'New' },
+        { id: 'history', path: '/history', label: 'Email History', icon: History },
+        { id: 'presets', path: '/presets', label: 'Prompt Presets', icon: Bookmark },
+        { id: 'analytics', path: '/analytics', label: 'Analytics', icon: BarChart3 },
     ];
 
-    const handleTabClick = (id) => {
+    const handleNavClick = (path, id) => {
         if (id === 'generator' && onNewGenerator) {
             onNewGenerator();
-        } else {
-            setActiveTab(id);
         }
+        navigate(path);
         if (setIsOpen) setIsOpen(false);
     };
 
@@ -41,7 +41,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, onNewGenerator })
         <>
             {/* Mobile Backdrop Overlay */}
             {isOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden transition-opacity"
                     onClick={() => setIsOpen(false)}
                 />
@@ -71,8 +71,8 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, onNewGenerator })
 
                         {/* Mobile Close Button */}
                         {setIsOpen && (
-                            <button 
-                                onClick={() => setIsOpen(false)} 
+                            <button
+                                onClick={() => setIsOpen(false)}
                                 className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60"
                             >
                                 <X className="w-5 h-5" />
@@ -82,7 +82,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, onNewGenerator })
 
                     {/* New Generation Button */}
                     <button
-                        onClick={() => handleTabClick('generator')}
+                        onClick={() => handleNavClick('/dashboard', 'generator')}
                         className="w-full mb-6 py-3 px-4 rounded-xl bg-gradient-to-r from-[#2DD4BF] to-teal-400 hover:from-teal-400 hover:to-[#2DD4BF] text-slate-950 font-semibold text-sm shadow-lg shadow-[#2DD4BF]/20 flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <Plus className="w-4 h-4 stroke-[3]" />
@@ -97,15 +97,15 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, onNewGenerator })
 
                         {navItems.map((item) => {
                             const Icon = item.icon;
-                            const isActive = activeTab === item.id;
+                            const isActive = location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/');
                             return (
                                 <button
                                     key={item.id}
-                                    onClick={() => handleTabClick(item.id)}
+                                    onClick={() => handleNavClick(item.path, item.id)}
                                     className={`
                                         w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                                        ${isActive 
-                                            ? 'bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20 shadow-sm' 
+                                        ${isActive
+                                            ? 'bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20 shadow-sm font-semibold'
                                             : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}
                                     `}
                                 >
