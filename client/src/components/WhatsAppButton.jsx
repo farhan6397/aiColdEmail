@@ -12,7 +12,7 @@ const WhatsAppButton = () => {
             target="_blank"
             rel="noopener noreferrer"
             title="Chat with Us on WhatsApp"
-            className="fixed bottom-6 right-6 z-50 group flex items-center gap-2.5 px-4 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
+            className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 group flex items-center gap-2.5 p-3 sm:px-4 sm:py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
         >
             <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-950 opacity-75"></span>

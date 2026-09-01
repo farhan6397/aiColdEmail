@@ -1,7 +1,18 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    let url = import.meta.env.VITE_API_BASE_URL;
+    if (!url) {
+        return 'https://aicoldemail.onrender.com/api';
+    }
+    if (!url.endsWith('/api')) {
+        url = url.replace(/\/+$/, '') + '/api';
+    }
+    return url;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL + '/api' || "https://aicoldemail.onrender.com/api" || 'http://localhost:5000/api',
+    baseURL: getBaseURL(),
 });
 
 api.interceptors.request.use((config) => {
