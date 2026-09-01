@@ -5,16 +5,24 @@ const sendEmail = async (options) => {
         throw new Error("Email credentials not found in environment variables");
     }
 
+    const cleanPass = process.env.EMAIL_PASS.replace(/\s+/g, '');
+
     const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            pass: cleanPass,
         },
+        tls: {
+            rejectUnauthorized: false
+        },
+        family: 4 // Force IPv4 to prevent ENETUNREACH on Render
     });
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"ColdMail AI" <${process.env.EMAIL_USER}>`,
         to: options.to,
         subject: options.subject,
         text: options.text,
