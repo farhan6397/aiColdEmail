@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../utils/api.js';
+import { formatIST } from '../utils/formatDate.js';
 import {
     Sparkles,
     Send,
@@ -642,7 +643,7 @@ const Dashboard = () => {
                                                         <span className="flex items-center gap-1 text-[#2DD4BF]">
                                                             <Sparkles className="w-3.5 h-3.5" /> Campaign
                                                         </span>
-                                                        <span>{new Date(item.createdAt || Date.now()).toLocaleDateString()}</span>
+                                                        <span title={formatIST(item.createdAt)}>{formatIST(item.createdAt)}</span>
                                                     </div>
 
                                                     <h3 className="text-sm font-bold text-white group-hover:text-[#2DD4BF] transition-colors mb-2 line-clamp-1">
