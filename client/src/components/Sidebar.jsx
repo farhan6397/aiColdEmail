@@ -137,19 +137,26 @@ const Sidebar = ({ isOpen, setIsOpen, onNewGenerator }) => {
                 {/* Footer User Profile & Logout */}
                 <div className="pt-4 border-t border-slate-800/80">
                     <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-[#2DD4BF] font-bold text-sm shrink-0">
-                                {user?.username ? user.username.charAt(0).toUpperCase() : <User className="w-4 h-4 text-slate-300" />}
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-semibold text-white truncate leading-tight">
-                                    {user?.username || 'Sales User'}
+                        {(() => {
+                            const displayName = user?.name || user?.username || (user?.email ? user.email.split('@')[0] : 'User');
+                            const initial = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+
+                            return (
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 rounded-xl bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 flex items-center justify-center text-[#2DD4BF] font-bold text-sm shrink-0 shadow-sm">
+                                        {initial}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="text-sm font-semibold text-white truncate leading-tight capitalize" title={displayName}>
+                                            {displayName}
+                                        </div>
+                                        <div className="text-xs text-slate-400 truncate" title={user?.email || ''}>
+                                            {user?.email || 'user@coldmail.ai'}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-xs text-slate-400 truncate">
-                                    {user?.email || 'user@coldmail.ai'}
-                                </div>
-                            </div>
-                        </div>
+                            );
+                        })()}
 
                         <button
                             onClick={logout}

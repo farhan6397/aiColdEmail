@@ -25,7 +25,8 @@ import {
     CheckCircle2,
     ArrowUpRight,
     Filter,
-    Home
+    Home,
+    X
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -36,6 +37,7 @@ const Dashboard = () => {
     // Navigation & Layout states
     const [activeSidebarTab, setActiveSidebarTab] = useState('generator');
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [showPresetModal, setShowPresetModal] = useState(false);
 
     // Generator states
     const [prompt, setPrompt] = useState('');
@@ -328,11 +330,23 @@ const Dashboard = () => {
                                 {/* Prompt Card */}
                                 <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-xl relative overflow-hidden">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                            <Sparkles className="w-5 h-5 text-[#2DD4BF]" />
+                                        <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                                            <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 text-[#2DD4BF]" />
                                             <span>Describe Prospect & Goal</span>
                                         </h2>
-                                        <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg">
+                                        
+                                        {/* Presets Button for Small Devices */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPresetModal(true)}
+                                            className="sm:hidden px-2.5 py-1 rounded-xl bg-[#2DD4BF]/15 border border-[#2DD4BF]/40 text-[#2DD4BF] text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                                        >
+                                            <Bookmark className="w-3.5 h-3.5" />
+                                            <span>Presets</span>
+                                        </button>
+
+                                        {/* Model Badge for Desktop */}
+                                        <span className="hidden sm:inline-flex text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg">
                                             Groq Compound Mini
                                         </span>
                                     </div>
@@ -403,8 +417,8 @@ const Dashboard = () => {
                                     </form>
                                 </div>
 
-                                {/* Preset Templates Widget */}
-                                <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 shadow-lg">
+                                {/* Preset Templates Widget (Hidden on mobile, accessible via Presets button/modal) */}
+                                <div className="hidden lg:block p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 shadow-lg">
                                     <div className="flex items-center justify-between mb-3">
                                         <h3 className="text-sm font-bold text-white flex items-center gap-2">
                                             <Bookmark className="w-4 h-4 text-[#2DD4BF]" />
@@ -792,6 +806,60 @@ const Dashboard = () => {
 
                 </main>
             </div>
+
+            {/* MOBILE / QUICK PRESETS MODAL */}
+            {showPresetModal && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+                    <div className="w-full max-w-lg p-6 rounded-t-3xl sm:rounded-3xl bg-[#0B0F11] border border-slate-800 shadow-2xl relative space-y-4 max-h-[85vh] overflow-y-auto">
+                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 flex items-center justify-center text-[#2DD4BF]">
+                                    <Bookmark className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-white">Select Prompt Preset</h3>
+                                    <p className="text-[11px] text-slate-400">1-click to load proven outreach prompts</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowPresetModal(false)}
+                                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-2.5 pt-1">
+                            {promptPresets.map((preset, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                        setPrompt(preset.prompt);
+                                        setSelectedTone(preset.tone);
+                                        setShowPresetModal(false);
+                                        if (errorMsg) setErrorMsg('');
+                                    }}
+                                    className="w-full text-left p-3.5 rounded-2xl bg-[#070A0B] hover:bg-slate-800/50 border border-slate-800 hover:border-[#2DD4BF]/40 transition-all group"
+                                >
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-semibold text-slate-200 group-hover:text-[#2DD4BF] transition-colors">
+                                            {preset.title}
+                                        </span>
+                                        <span className="text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded-md bg-slate-800">
+                                            {preset.tone}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                                        {preset.prompt}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
