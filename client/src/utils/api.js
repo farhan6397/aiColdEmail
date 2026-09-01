@@ -1,13 +1,7 @@
 import axios from 'axios';
 
-let rawBaseURL = import.meta.env.VITE_API_BASE_URL || 'https://aicoldemail.onrender.com/api';
-
-if (rawBaseURL && !rawBaseURL.endsWith('/api')) {
-    rawBaseURL = rawBaseURL.replace(/\/+$/, '') + '/api';
-}
-
 const api = axios.create({
-    baseURL: rawBaseURL,
+    baseURL: import.meta.env.VITE_API_BASE_URL + '/api' || "https://aicoldemail.onrender.com/api" || 'http://localhost:5000/api',
 });
 
 api.interceptors.request.use((config) => {
