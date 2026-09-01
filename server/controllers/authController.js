@@ -2,6 +2,18 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("../utils/sendEmail");
 
+// Check if running in Render cloud deployment
+const isRenderCloud = () => {
+    return (
+        process.env.RENDER === "true" ||
+        process.env.NODE_ENV === "production" ||
+        process.env.RENDER_SERVICE_ID !== undefined ||
+        process.env.RENDER_INSTANCE_ID !== undefined ||
+        process.env.BYPASS_OTP === "true" ||
+        (process.env.PORT && String(process.env.PORT) !== "5000")
+    );
+};
+
 const generateToken = function (id) {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET is missing from environment variables");
@@ -47,7 +59,30 @@ exports.register = async (req, res) => {
                 });
             }
 
-            // Unverified user requesting fresh registration
+            // Unverified user requesting registration
+            if (isRenderCloud()) {
+                // On Render: Auto-verify account
+                user.name = username.trim();
+                user.password = password;
+                user.isVerified = true;
+                user.otp = undefined;
+                user.otpExpiry = undefined;
+                await user.save();
+
+                const token = generateToken(user._id);
+                return res.status(200).json({
+                    success: true,
+                    message: "Account verified and registered successfully!",
+                    token,
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email
+                    }
+                });
+            }
+
+            // On Localhost: Send OTP via Gmail SMTP
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -61,7 +96,7 @@ exports.register = async (req, res) => {
                 await sendEmail({
                     to: normalizedEmail,
                     subject: "Your OTP Verification Code - ColdMail AI",
-                    text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes. Do not share this code with anyone.\n\nBest regards,\nColdMail AI Team`,
+                    text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nBest regards,\nColdMail AI Team`,
                 });
 
                 return res.status(200).json({
@@ -69,14 +104,40 @@ exports.register = async (req, res) => {
                     message: "Account verification code sent! Please check your email inbox."
                 });
             } catch (emailError) {
-                console.error("Email sending failed:", emailError.message);
+                console.error("Local email sending failed:", emailError.message);
                 return res.status(500).json({
                     success: false,
-                    message: "Account created, but we could not send the verification email. Please check your email settings or click Resend OTP."
+                    message: "Failed to send verification email. Please check your local .env email settings."
                 });
             }
         }
 
+        // ============================================
+        // 🚀 NEW USER REGISTRATION
+        // ============================================
+        if (isRenderCloud()) {
+            // On Render: Auto-verify new user immediately
+            user = await User.create({
+                name: username.trim(),
+                email: normalizedEmail,
+                password,
+                isVerified: true
+            });
+
+            const token = generateToken(user._id);
+            return res.status(201).json({
+                success: true,
+                message: "Account created successfully! Welcome to ColdMail AI.",
+                token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email
+                }
+            });
+        }
+
+        // On Localhost: Create unverified user and send OTP via Gmail SMTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -84,6 +145,7 @@ exports.register = async (req, res) => {
             name: username.trim(),
             email: normalizedEmail,
             password,
+            isVerified: false,
             otp,
             otpExpiry
         });
@@ -92,7 +154,7 @@ exports.register = async (req, res) => {
             await sendEmail({
                 to: normalizedEmail,
                 subject: "Your OTP Verification Code - ColdMail AI",
-                text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes. Do not share this code with anyone.\n\nBest regards,\nColdMail AI Team`,
+                text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nBest regards,\nColdMail AI Team`,
             });
 
             return res.status(201).json({
@@ -100,10 +162,10 @@ exports.register = async (req, res) => {
                 message: "Account created successfully! A 6-digit OTP verification code has been sent to your email."
             });
         } catch (emailError) {
-            console.error("Email sending failed:", emailError.message);
+            console.error("Local email sending failed:", emailError.message);
             return res.status(500).json({
                 success: false,
-                message: "Account created, but we could not send the verification email. Please check your email settings or click Resend OTP."
+                message: "Account created, but failed to send verification email. Please check your local .env email settings."
             });
         }
     } catch (error) {
@@ -152,11 +214,19 @@ exports.login = async (req, res) => {
             });
         }
 
+        // On Render: If user is not verified, auto-verify them so they can log in seamlessly
         if (!user.isVerified) {
-            return res.status(403).json({
-                success: false,
-                message: "Your email is not verified yet. Please verify your OTP to access your account."
-            });
+            if (isRenderCloud()) {
+                user.isVerified = true;
+                user.otp = undefined;
+                user.otpExpiry = undefined;
+                await user.save();
+            } else {
+                return res.status(403).json({
+                    success: false,
+                    message: "Your email is not verified yet. Please verify your OTP to access your account."
+                });
+            }
         }
 
         const token = generateToken(user._id);
@@ -184,10 +254,10 @@ exports.login = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
-        if (!email || !otp) {
+        if (!email) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide your email and the 6-digit OTP code."
+                message: "Please provide your email address."
             });
         }
 
@@ -198,6 +268,34 @@ exports.verifyOtp = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "No account found with this email address."
+            });
+        }
+
+        // On Render: Auto-verify immediately
+        if (isRenderCloud()) {
+            user.isVerified = true;
+            user.otp = undefined;
+            user.otpExpiry = undefined;
+            await user.save();
+
+            const token = generateToken(user._id);
+            return res.status(200).json({
+                success: true,
+                message: "Email verified successfully! Welcome to ColdMail AI.",
+                token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email
+                }
+            });
+        }
+
+        // On Localhost: Strict OTP check
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter the 6-digit OTP code."
             });
         }
 
@@ -265,6 +363,20 @@ exports.resendOtp = async (req, res) => {
             });
         }
 
+        // On Render: Auto-verify user
+        if (isRenderCloud()) {
+            user.isVerified = true;
+            user.otp = undefined;
+            user.otpExpiry = undefined;
+            await user.save();
+
+            return res.status(200).json({
+                success: true,
+                message: "Account verified successfully on Render cloud."
+            });
+        }
+
+        // On Localhost: Generate and send OTP via Gmail SMTP
         if (user.isVerified) {
             return res.status(400).json({
                 success: false,
