@@ -1,6 +1,19 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+const getISTDateTime = () => {
+    return new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+    }) + " IST";
+};
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -27,12 +40,25 @@ const userSchema = new mongoose.Schema({
     },
     otpExpiry: {
         type: Date,
+    },
+    createdAtIST: {
+        type: String,
+        default: getISTDateTime
+    },
+    updatedAtIST: {
+        type: String,
+        default: getISTDateTime
     }
 }, { timestamps: true });
 
-
-// Hash password before saving
+// Pre-save middleware for IST timestamps and password hashing
 userSchema.pre("save", async function () {
+    const nowIST = getISTDateTime();
+    if (this.isNew) {
+        this.createdAtIST = nowIST;
+    }
+    this.updatedAtIST = nowIST;
+
     if (!this.isModified("password")) {
         return;
     }
@@ -40,15 +66,10 @@ userSchema.pre("save", async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-
 // Method to compare password
-// candidatePassword --> Farhan123 --> $2a$10$.....................fdfsd --> true
-// candidatePassword --> Farhan1234 --> $2a$10$.....................fdfsd --> false
-
 userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
-
 
 const User = mongoose.model("User", userSchema);
 
