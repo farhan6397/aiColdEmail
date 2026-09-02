@@ -56,24 +56,34 @@ const Dashboard = () => {
     // Pre-defined Prompt Templates
     const promptPresets = [
         {
-            title: ' SaaS Engineering Pitch',
+            title: 'SaaS Engineering Pitch',
             tone: 'Conversational',
             prompt: 'Write a cold email to Sarah Connor, VP of Engineering at Cyberdyne Systems. Pitch our AI test automation platform to cut CI build times by 40%.'
         },
         {
-            title: ' Agency Growth Outreach',
+            title: 'Agency Growth Outreach',
             tone: 'Direct & Short',
             prompt: 'Write a concise cold outreach email to Alex Mercer, Head of Marketing at ScaleLayer. Pitch our performance ad creative audit to increase demo bookings.'
         },
         {
-            title: ' Proposal Follow-Up',
+            title: 'Proposal Follow-Up',
             tone: 'Professional',
             prompt: 'Draft a friendly follow-up email for a prospect who reviewed our custom software proposal 3 days ago but hasn\'t booked a call yet.'
         },
         {
-            title: ' Executive LinkedIn DM',
+            title: 'Executive LinkedIn DM',
             tone: 'Persuasive',
             prompt: 'Write a short 2-sentence LinkedIn DM to Marcus Vance, VP of Revenue Operations, pitching automated deliverability optimization.'
+        },
+        {
+            title: 'Enterprise Security Audit',
+            tone: 'Professional',
+            prompt: 'Draft a high-priority cold email to David Vance, Chief Information Security Officer at Nexus Cloud, offering an automated API vulnerability scan.'
+        },
+        {
+            title: 'FinTech Demo Request',
+            tone: 'Direct & Short',
+            prompt: 'Write a 3-sentence outreach email to Elena Rostova, VP of Finance at PayStream, pitching our AI-driven fraud detection dashboard.'
         }
     ];
 
@@ -95,6 +105,27 @@ const Dashboard = () => {
     useEffect(() => {
         fetchHistory();
     }, []);
+
+    // Sync preset prompt and tone if navigated from Presets page
+    useEffect(() => {
+        if (location.state?.presetPrompt) {
+            setPrompt(location.state.presetPrompt);
+            if (location.state.presetTone) {
+                setSelectedTone(location.state.presetTone);
+            }
+            setActiveSidebarTab('generator');
+            setErrorMsg('');
+
+            // Scroll and focus prompt textarea smoothly
+            setTimeout(() => {
+                const el = document.getElementById('outreach-prompt-input');
+                if (el) {
+                    el.focus();
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+    }, [location.key, location.state]);
 
     // Handle Email Generation
     const handleGenerate = async (e) => {
@@ -366,6 +397,7 @@ const Dashboard = () => {
                                                 Outreach Prompt / Lead Details
                                             </label>
                                             <textarea
+                                                id="outreach-prompt-input"
                                                 value={prompt}
                                                 onChange={(e) => setPrompt(e.target.value)}
                                                 placeholder="e.g. Write a cold email to Sarah Connor, VP of Engineering at Cyberdyne Systems. Pitch our AI test platform to reduce build times by 40%..."

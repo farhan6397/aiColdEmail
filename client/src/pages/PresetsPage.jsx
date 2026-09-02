@@ -41,7 +41,13 @@ const PresetsPage = () => {
 
     const handleUsePreset = (preset) => {
         // Navigate to studio generator with preset state
-        navigate('/dashboard', { state: { presetPrompt: preset.prompt, presetTone: preset.tone } });
+        navigate('/dashboard', {
+            state: {
+                presetPrompt: preset.prompt,
+                presetTone: preset.tone,
+                timestamp: Date.now()
+            }
+        });
     };
 
     return (
