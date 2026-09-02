@@ -385,6 +385,7 @@ The application will be live at:
 4. Configure Environment Variable:
    - `VITE_API_BASE_URL`: `https://your-render-backend.onrender.com/api`
 5. Deploy!
+   - *Note: The pre-configured [`client/vercel.json`](file:///d:/Farhan/Projects/AI%20COLD%20EMAIL%20GENERATOR/client/vercel.json) automatically handles SPA route rewrites so refreshing `/dashboard`, `/history`, etc. works without 404 errors.*
 
 ---
 
@@ -427,7 +428,7 @@ This project is open-source software licensed under the **ISC License**.
 
 <div align="center">
 
-**Built with ❤️ for modern sales teams, founders, and growth agencies.**
+**Built with ❤️ by Farhan.**
 
 ⭐ If you found ColdMail AI helpful, please consider giving it a star on [GitHub](https://github.com/farhan6397/aiColdEmail)!
 
