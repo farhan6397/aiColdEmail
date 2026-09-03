@@ -71,28 +71,6 @@ const generateOtpHtml = (name, otp) => {
 };
 
 const sendEmail = async (options) => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        throw new Error("Email credentials not found in environment variables (EMAIL_USER & EMAIL_PASS)");
-    }
-
-    const cleanPass = process.env.EMAIL_PASS.replace(/\s+/g, '');
-
-    const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 20000,
-        auth: {
-            user: process.env.EMAIL_USER.trim(),
-            pass: cleanPass,
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
     const htmlContent = options.html || (options.otp ? generateOtpHtml(options.name, options.otp) : `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
             <h2 style="color: #0f172a; margin-bottom: 12px;">ColdMail AI Verification</h2>
@@ -102,17 +80,108 @@ const sendEmail = async (options) => {
         </div>
     `);
 
-    const mailOptions = {
-        from: `"ColdMail AI" <${process.env.EMAIL_USER.trim()}>`,
-        to: options.to,
-        subject: options.subject,
-        text: options.text,
-        html: htmlContent
-    };
+    // =========================================================================
+    // Option 1: Resend HTTP REST API (Recommended for Render Free Tier - Port 443)
+    // =========================================================================
+    if (process.env.RESEND_API_KEY) {
+        try {
+            const senderEmail = process.env.EMAIL_FROM || 'ColdMail AI <onboarding@resend.dev>';
+            const res = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: senderEmail,
+                    to: [options.to],
+                    subject: options.subject,
+                    html: htmlContent,
+                    text: options.text
+                })
+            });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Mail sent successfully to", options.to, "Message ID:", info.messageId);
-    return true;
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(`Resend API Error: ${data.message || JSON.stringify(data)}`);
+            }
+            console.log("Mail sent successfully via Resend to", options.to, "ID:", data.id);
+            return true;
+        } catch (resendErr) {
+            console.error("Resend API dispatch failed:", resendErr.message);
+            throw resendErr;
+        }
+    }
+
+    // =========================================================================
+    // Option 2: Brevo HTTP REST API (Port 443)
+    // =========================================================================
+    if (process.env.BREVO_API_KEY) {
+        try {
+            const senderEmail = process.env.EMAIL_USER || 'no-reply@coldmail.ai';
+            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY.trim(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: 'ColdMail AI', email: senderEmail },
+                    to: [{ email: options.to }],
+                    subject: options.subject,
+                    htmlContent: htmlContent,
+                    textContent: options.text
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(`Brevo API Error: ${data.message || JSON.stringify(data)}`);
+            }
+            console.log("Mail sent successfully via Brevo to", options.to, "Message ID:", data.messageId);
+            return true;
+        } catch (brevoErr) {
+            console.error("Brevo API dispatch failed:", brevoErr.message);
+            throw brevoErr;
+        }
+    }
+
+    // =========================================================================
+    // Option 3: Nodemailer with Gmail SMTP (Works on Localhost, VPS & Paid Cloud)
+    // =========================================================================
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        const cleanPass = process.env.EMAIL_PASS.replace(/\s+/g, '');
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000,
+            auth: {
+                user: process.env.EMAIL_USER.trim(),
+                pass: cleanPass,
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+
+        const mailOptions = {
+            from: `"ColdMail AI" <${process.env.EMAIL_USER.trim()}>`,
+            to: options.to,
+            subject: options.subject,
+            text: options.text,
+            html: htmlContent
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Mail sent successfully via Gmail SMTP to", options.to, "Message ID:", info.messageId);
+        return true;
+    }
+
+    throw new Error("No email service configured. Please set RESEND_API_KEY or EMAIL_USER & EMAIL_PASS in environment variables.");
 };
 
 module.exports = { sendEmail, generateOtpHtml };
