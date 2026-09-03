@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+
 
 /**
  * Generate a responsive, dark-mode branded HTML email template for OTP codes
@@ -81,34 +83,28 @@ const sendEmail = async (options) => {
     `);
 
     // =========================================================================
-    // Option 1: Resend HTTP REST API (Recommended for Render Free Tier - Port 443)
+    // Option 1: Resend Official SDK (Recommended for Render - Port 443 HTTPS)
     // =========================================================================
     if (process.env.RESEND_API_KEY) {
         try {
+            const resend = new Resend(process.env.RESEND_API_KEY.trim());
             const senderEmail = process.env.EMAIL_FROM || 'ColdMail AI <onboarding@resend.dev>';
-            const res = await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    from: senderEmail,
-                    to: [options.to],
-                    subject: options.subject,
-                    html: htmlContent,
-                    text: options.text
-                })
+            const { data, error } = await resend.emails.send({
+                from: senderEmail,
+                to: [options.to],
+                subject: options.subject,
+                html: htmlContent,
+                text: options.text
             });
 
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(`Resend API Error: ${data.message || JSON.stringify(data)}`);
+            if (error) {
+                throw new Error(`Resend Error: ${error.message || JSON.stringify(error)}`);
             }
-            console.log("Mail sent successfully via Resend to", options.to, "ID:", data.id);
+
+            console.log("Mail sent successfully via Resend to", options.to, "ID:", data?.id);
             return true;
         } catch (resendErr) {
-            console.error("Resend API dispatch failed:", resendErr.message);
+            console.error("Resend dispatch failed:", resendErr.message);
             throw resendErr;
         }
     }
