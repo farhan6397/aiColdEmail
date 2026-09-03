@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Mail, Lock, User, KeyRound, ArrowRight, Sparkles, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import api from '../utils/api.js';
+import { Mail, Lock, User, KeyRound, ArrowRight, Sparkles, AlertCircle, Loader2, CheckCircle2, RotateCw } from 'lucide-react';
 
 const Register = () => {
     const [step, setStep] = useState('register'); // 'register' or 'otp'
     const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
     const [otp, setOtp] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isResending, setIsResending] = useState(false);
     const [error, setError] = useState('');
     const [infoMessage, setInfoMessage] = useState('');
 
@@ -72,6 +74,22 @@ const Register = () => {
             setError(err.response?.data?.message || 'OTP verification failed. Please try again.');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!formData.email) return;
+        setIsResending(true);
+        setError('');
+        setInfoMessage('');
+
+        try {
+            const res = await api.post('/auth/resend-otp', { email: formData.email });
+            setInfoMessage(res.data?.message || 'A fresh verification code has been sent to your email.');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Unable to resend OTP. Please try again.');
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -297,13 +315,26 @@ const Register = () => {
                                     </button>
                                 </form>
 
-                                <div className="mt-6 text-center text-xs text-slate-500">
-                                    Didn't get the code?{' '}
+                                <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
                                     <button 
-                                        onClick={() => setStep('register')} 
-                                        className="text-[#2DD4BF] hover:underline"
+                                        type="button"
+                                        onClick={handleResendOtp}
+                                        disabled={isResending}
+                                        className="text-[#2DD4BF] hover:text-[#25C4B0] font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
                                     >
-                                        Change details / Resend
+                                        <RotateCw className={`w-3.5 h-3.5 ${isResending ? 'animate-spin' : ''}`} />
+                                        <span>{isResending ? 'Resending Code...' : 'Resend Code'}</span>
+                                    </button>
+
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setStep('register');
+                                            setError('');
+                                        }} 
+                                        className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                                    >
+                                        Wrong email? Edit details
                                     </button>
                                 </div>
                             </>

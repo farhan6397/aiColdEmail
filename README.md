@@ -50,7 +50,7 @@ Rather than generating generic templates, it generates a complete **4-in-1 multi
 
 ### 🔐 Enterprise-Grade Authentication & Cloud-Ready Verification
 - **JWT & Bcrypt**: Secure token-based session handling and salted password encryption.
-- **Dual-Mode OTP Verification**: Automated 6-digit OTP delivery using Nodemailer & Gmail SMTP for local environments, paired with automatic cloud bypass when running in cloud environments (Render, Railway, Heroku) where SMTP ports are restricted.
+- **Real 6-Digit Email OTP Verification**: Automated 6-digit OTP delivery using Nodemailer & Gmail SMTP with responsive, dark-mode branded email templates and 10-minute expiration security.
 
 ### 📜 Searchable Cloud History & Archives
 - Complete MongoDB-backed history tracking with persistent user-bound records.
@@ -182,7 +182,7 @@ Create a file named `.env` inside the `server/` directory (refer to [`server/.en
 | `GROQ_API_KEY` | **Yes** | API key from Groq Cloud platform | `gsk_xxxxxxxxxxxxxxxxxxxx` |
 | `EMAIL_USER` | **Yes** | Gmail email address for sending OTP verification codes | `your-email@gmail.com` |
 | `EMAIL_PASS` | **Yes** | 16-digit Google App Password (not standard account password) | `xxxx xxxx xxxx xxxx` |
-| `BYPASS_OTP` | Optional | Set to `true` to auto-verify registrations without SMTP | `false` |
+
 
 > [!TIP]
 > **How to create a Gmail App Password:**

@@ -2,18 +2,6 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("../utils/sendEmail");
 
-// Check if running in Render cloud deployment
-const isRenderCloud = () => {
-    return (
-        process.env.RENDER === "true" ||
-        process.env.NODE_ENV === "production" ||
-        process.env.RENDER_SERVICE_ID !== undefined ||
-        process.env.RENDER_INSTANCE_ID !== undefined ||
-        process.env.BYPASS_OTP === "true" ||
-        (process.env.PORT && String(process.env.PORT) !== "5000")
-    );
-};
-
 const generateToken = function (id) {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET is missing from environment variables");
@@ -21,7 +9,9 @@ const generateToken = function (id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-// 1. REGISTER
+// ============================================
+// 1. REGISTER USER & SEND REAL OTP
+// ============================================
 exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -51,6 +41,7 @@ exports.register = async (req, res) => {
         const normalizedEmail = email.toLowerCase().trim();
         let user = await User.findOne({ email: normalizedEmail });
 
+        // Case A: User already exists
         if (user) {
             if (user.isVerified) {
                 return res.status(400).json({
@@ -59,32 +50,9 @@ exports.register = async (req, res) => {
                 });
             }
 
-            // Unverified user requesting registration
-            if (isRenderCloud()) {
-                // On Render: Auto-verify account
-                user.name = username.trim();
-                user.password = password;
-                user.isVerified = true;
-                user.otp = undefined;
-                user.otpExpiry = undefined;
-                await user.save();
-
-                const token = generateToken(user._id);
-                return res.status(200).json({
-                    success: true,
-                    message: "Account verified and registered successfully!",
-                    token,
-                    user: {
-                        id: user._id,
-                        name: user.name,
-                        email: user.email
-                    }
-                });
-            }
-
-            // On Localhost: Send OTP via Gmail SMTP
+            // Unverified user requesting new registration/verification
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
             user.name = username.trim();
             user.password = password;
@@ -96,6 +64,8 @@ exports.register = async (req, res) => {
                 await sendEmail({
                     to: normalizedEmail,
                     subject: "Your OTP Verification Code - ColdMail AI",
+                    name: user.name,
+                    otp,
                     text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nBest regards,\nColdMail AI Team`,
                 });
 
@@ -104,42 +74,17 @@ exports.register = async (req, res) => {
                     message: "Account verification code sent! Please check your email inbox."
                 });
             } catch (emailError) {
-                console.error("Local email sending failed:", emailError.message);
+                console.error("Email sending failed:", emailError.message);
                 return res.status(500).json({
                     success: false,
-                    message: "Failed to send verification email. Please check your local .env email settings."
+                    message: "Failed to send verification email. Please check your email address or try again later."
                 });
             }
         }
 
-        // ============================================
-        // 🚀 NEW USER REGISTRATION
-        // ============================================
-        if (isRenderCloud()) {
-            // On Render: Auto-verify new user immediately
-            user = await User.create({
-                name: username.trim(),
-                email: normalizedEmail,
-                password,
-                isVerified: true
-            });
-
-            const token = generateToken(user._id);
-            return res.status(201).json({
-                success: true,
-                message: "Account created successfully! Welcome to ColdMail AI.",
-                token,
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email
-                }
-            });
-        }
-
-        // On Localhost: Create unverified user and send OTP via Gmail SMTP
+        // Case B: Brand new user registration
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
         user = await User.create({
             name: username.trim(),
@@ -154,6 +99,8 @@ exports.register = async (req, res) => {
             await sendEmail({
                 to: normalizedEmail,
                 subject: "Your OTP Verification Code - ColdMail AI",
+                name: user.name,
+                otp,
                 text: `Hello ${user.name},\n\nYour 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nBest regards,\nColdMail AI Team`,
             });
 
@@ -162,10 +109,10 @@ exports.register = async (req, res) => {
                 message: "Account created successfully! A 6-digit OTP verification code has been sent to your email."
             });
         } catch (emailError) {
-            console.error("Local email sending failed:", emailError.message);
+            console.error("Email sending failed:", emailError.message);
             return res.status(500).json({
                 success: false,
-                message: "Account created, but failed to send verification email. Please check your local .env email settings."
+                message: "Account created, but failed to send verification email. Please try resending the OTP code."
             });
         }
     } catch (error) {
@@ -185,7 +132,9 @@ exports.register = async (req, res) => {
 
 exports.registerUser = exports.register;
 
-// 2. LOGIN
+// ============================================
+// 2. LOGIN USER (STRICT VERIFICATION CHECK)
+// ============================================
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -214,19 +163,13 @@ exports.login = async (req, res) => {
             });
         }
 
-        // On Render: If user is not verified, auto-verify them so they can log in seamlessly
+        // Strict verification: user must be verified via OTP
         if (!user.isVerified) {
-            if (isRenderCloud()) {
-                user.isVerified = true;
-                user.otp = undefined;
-                user.otpExpiry = undefined;
-                await user.save();
-            } else {
-                return res.status(403).json({
-                    success: false,
-                    message: "Your email is not verified yet. Please verify your OTP to access your account."
-                });
-            }
+            return res.status(403).json({
+                success: false,
+                isUnverified: true,
+                message: "Your email is not verified yet. Please verify your OTP to access your account."
+            });
         }
 
         const token = generateToken(user._id);
@@ -250,7 +193,9 @@ exports.login = async (req, res) => {
     }
 };
 
-// 3. VERIFY OTP
+// ============================================
+// 3. VERIFY OTP (STRICT 6-DIGIT CODE & EXPIRY)
+// ============================================
 exports.verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -258,6 +203,13 @@ exports.verifyOtp = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "Please provide your email address."
+            });
+        }
+
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter the 6-digit OTP code."
             });
         }
 
@@ -271,34 +223,6 @@ exports.verifyOtp = async (req, res) => {
             });
         }
 
-        // On Render: Auto-verify immediately
-        if (isRenderCloud()) {
-            user.isVerified = true;
-            user.otp = undefined;
-            user.otpExpiry = undefined;
-            await user.save();
-
-            const token = generateToken(user._id);
-            return res.status(200).json({
-                success: true,
-                message: "Email verified successfully! Welcome to ColdMail AI.",
-                token,
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email
-                }
-            });
-        }
-
-        // On Localhost: Strict OTP check
-        if (!otp) {
-            return res.status(400).json({
-                success: false,
-                message: "Please enter the 6-digit OTP code."
-            });
-        }
-
         if (user.isVerified) {
             return res.status(400).json({
                 success: false,
@@ -306,6 +230,7 @@ exports.verifyOtp = async (req, res) => {
             });
         }
 
+        // Strict OTP check: correct value and within 10 minutes
         const isOtpInvalid = !user.otp || String(user.otp).trim() !== String(otp).trim();
         const isOtpExpired = !user.otpExpiry || new Date(user.otpExpiry).getTime() < Date.now();
 
@@ -316,12 +241,13 @@ exports.verifyOtp = async (req, res) => {
             });
         }
 
-        const token = generateToken(user._id);
-
+        // Verification successful: Mark user verified and clear OTP fields
         user.isVerified = true;
         user.otp = undefined;
         user.otpExpiry = undefined;
         await user.save();
+
+        const token = generateToken(user._id);
 
         return res.status(200).json({
             success: true,
@@ -342,7 +268,9 @@ exports.verifyOtp = async (req, res) => {
     }
 };
 
-// 4. RESEND OTP
+// ============================================
+// 4. RESEND OTP (SEND REAL FRESH 6-DIGIT CODE)
+// ============================================
 exports.resendOtp = async (req, res) => {
     try {
         const { email } = req.body;
@@ -363,20 +291,6 @@ exports.resendOtp = async (req, res) => {
             });
         }
 
-        // On Render: Auto-verify user
-        if (isRenderCloud()) {
-            user.isVerified = true;
-            user.otp = undefined;
-            user.otpExpiry = undefined;
-            await user.save();
-
-            return res.status(200).json({
-                success: true,
-                message: "Account verified successfully on Render cloud."
-            });
-        }
-
-        // On Localhost: Generate and send OTP via Gmail SMTP
         if (user.isVerified) {
             return res.status(400).json({
                 success: false,
@@ -384,6 +298,7 @@ exports.resendOtp = async (req, res) => {
             });
         }
 
+        // Generate fresh 6-digit OTP and 10-minute expiry
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -395,6 +310,8 @@ exports.resendOtp = async (req, res) => {
             await sendEmail({
                 to: normalizedEmail,
                 subject: "Your New OTP Verification Code - ColdMail AI",
+                name: user.name,
+                otp,
                 text: `Hello ${user.name},\n\nYour new 6-digit verification code is: ${otp}\n\nThis code is valid for 10 minutes. Do not share this code with anyone.\n\nBest regards,\nColdMail AI Team`,
             });
 
