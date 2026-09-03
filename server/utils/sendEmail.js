@@ -83,7 +83,41 @@ const sendEmail = async (options) => {
     `);
 
     // =========================================================================
-    // Option 1: Resend Official SDK (Recommended for Render - Port 443 HTTPS)
+    // Option 1: Brevo HTTP REST API (Port 443 HTTPS - Works on Render, No Domain Needed)
+    // =========================================================================
+    if (process.env.BREVO_API_KEY) {
+        try {
+            const senderEmail = process.env.BREVO_SENDER || process.env.EMAIL_USER || 'farhan639718@gmail.com';
+            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY.trim(),
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: 'ColdMail AI', email: senderEmail },
+                    to: [{ email: options.to, name: options.name || 'User' }],
+                    subject: options.subject,
+                    htmlContent: htmlContent,
+                    textContent: options.text
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(`Brevo API Error: ${data.message || JSON.stringify(data)}`);
+            }
+            console.log("Mail sent successfully via Brevo to", options.to, "Message ID:", data.messageId);
+            return true;
+        } catch (brevoErr) {
+            console.error("Brevo API dispatch failed:", brevoErr.message);
+            throw brevoErr;
+        }
+    }
+
+    // =========================================================================
+    // Option 2: Resend Official SDK (Port 443 HTTPS)
     // =========================================================================
     if (process.env.RESEND_API_KEY) {
         try {
@@ -106,39 +140,6 @@ const sendEmail = async (options) => {
         } catch (resendErr) {
             console.error("Resend dispatch failed:", resendErr.message);
             throw resendErr;
-        }
-    }
-
-    // =========================================================================
-    // Option 2: Brevo HTTP REST API (Port 443)
-    // =========================================================================
-    if (process.env.BREVO_API_KEY) {
-        try {
-            const senderEmail = process.env.EMAIL_USER || 'no-reply@coldmail.ai';
-            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-                method: 'POST',
-                headers: {
-                    'api-key': process.env.BREVO_API_KEY.trim(),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sender: { name: 'ColdMail AI', email: senderEmail },
-                    to: [{ email: options.to }],
-                    subject: options.subject,
-                    htmlContent: htmlContent,
-                    textContent: options.text
-                })
-            });
-
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(`Brevo API Error: ${data.message || JSON.stringify(data)}`);
-            }
-            console.log("Mail sent successfully via Brevo to", options.to, "Message ID:", data.messageId);
-            return true;
-        } catch (brevoErr) {
-            console.error("Brevo API dispatch failed:", brevoErr.message);
-            throw brevoErr;
         }
     }
 
